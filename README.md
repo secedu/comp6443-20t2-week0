@@ -31,6 +31,8 @@ Follow the instructions on [https://login.quoccabank.com/](https://login.quoccab
 
     Hello Adam Yi! You are authenticated as z5231521@quoccabank.com.
 
+Note: for installing certificates, due to the change of location for that setting on different browser versions (online guides might not refer to the location in the latest version), it might be easier to just search for "cert" in Chrome/Firefox settings (chrome://settings or about:preferences in Firefox) and import it there. After installing, if your browser doesn't prompt you to pick a certificate when visiting whoami.quoccabank.com, try restarting your browser process (the entire browser OS process, not just a window or a tab)
+
 If you have any issues with mTLS authentication, please contact us via cs6443@cse.unsw.edu.au
 
 <h2 class="hide-from-toc">Wow what's that</h2>
