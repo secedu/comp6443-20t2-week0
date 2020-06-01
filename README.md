@@ -147,7 +147,30 @@ After this give everything a good restart and you should be able to intercept re
 
 <h3 class="hide-from-toc">mTLS in Burp</h3>
 
-Please refer to [https://portswigger.net/burp/documentation/desktop/options/tls#client-tls-certificates](https://portswigger.net/burp/documentation/desktop/options/tls#client-tls-certificates) to install your client certificate in Burp Suite!
+**Do not install your mTLS certificate as a CA certificate. If you have accidentally done this jump to Resetting your Burp certificate setup**
+
+In order to install your mTLS certificate in Burpsuite:
+
+1. Go to Burp > User Options > TLS.
+2. You should see a fieldset titled "Client TLS Certificates".
+3. Click on "Add" button to the left of the table.
+4. This should bring up a popup asking you for a "Destination host" and "Certificate type".
+5. Set the destination host to `*.quoccabank.com` and select the radio button next to `File (PKCS#12)`.
+6. You should now be asked to browse to your "Certificate file" and enter a "Password".
+7. Select your mTLS certificate for "Certificate file", and the password that you received during certificate creation for the "Password" field.
+8. This should add the mTLS certificate (you should now see it in the Client TLS Certificates table)
+
+Please refer to [https://portswigger.net/burp/documentation/desktop/options/tls#client-tls-certificates](https://portswigger.net/burp/documentation/desktop/options/tls#client-tls-certificates) for official documentation.
+
+<h4 class="hide-from-toc">Resetting your Burp certificate setup</h4>
+
+If you have imported your certificate as a CA certificate, or otherwise broken your Burp certificate setup you can reset it with the steps below.
+
+1. Remove the Burp CA certificate you installed in your browser.
+2. Go to Burp > Proxy > Options.
+3. In the Proxy Listeners fieldset click the "Regenerate CA certificate" button. (Note: this will invalidate other burp CA certificates you have installed anywhere else)
+4. Navigate back to http://burp and download/install a new CA cer.tificate
+5. Follow the instructions above to install your mTLS certificate.
 
 <h3 class="hide-from-toc">Let's get your MasterCard shipped</h3>
 
