@@ -58,7 +58,7 @@ You'll see a pop up in which you can edit the html (in case you're a nerd, you'r
 See the relevant docs for more info but it's pretty self explanatory and stack-overflowable.
 
 * Chrome: [https://developers.google.com/web/tools/chrome-devtools/](https://developers.google.com/web/tools/chrome-devtools/])
-* Firefox: [https://developer.mozilla.org/son/docs/Tools](https://developer.mozilla.org/son/docs/Tools)
+* Firefox: [https://developer.mozilla.org/en-US/docs/Tools](https://developer.mozilla.org/en-US/docs/Tools)
 
 <h3 class="hide-from-toc">Now, Let's Get a QuoccaBank Account!</h3>
 
