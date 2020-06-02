@@ -197,3 +197,90 @@ This isn't COMP2041, we don't care if you miss a couple links, just make sure yo
 
 Note: Python is quite slow, and its default implementation CPython has some performance issues due to some of the design choices. It's good for this course and most of your day-to-day life. But if you want to make a really performance-critical tool that runs distributively at a large scale in your automation infrastructure, you might want to consider some of the compiled and more concurrency-friendly languages, but that's outside the scope of this course.
 
+<h3 class="hide-from-toc">Working with mTLS in scripts</h3>
+
+Running automating tooling against quoccabank maybe made complex by the fact that quoccabank requires mTLS for authentication. Here we outline two approaches that you can use to make mTLS work with your scripts. For example, try running curl against whoami.quoccabank.com.
+
+```bash
+$ curl -i https://whoami.quoccabank.com
+content-type: text/plain
+date: Mon, 01 Jun 2020 09:21:18 GMT
+server: whoami
+x-ctf-trace-context: 00000000-0000-0000-0000-000000000000
+content-length: 65
+
+You have not logged in! Please visit https://login.quoccabank.com
+```
+
+As you can see we are not signed in.
+
+<h4 class="hide-from-toc">Proxying Traffic through Burp</h4>
+
+If you have Burp setup properly, you can simply proxy your traffic through Burp's proxy in order to associate it with your mTLS certificate. Most tools have builtin support for http proxies, alternatively you could also set a system proxy through the `http[s]_proxy` variable. Note that taking this approach will log all your requests in burp, which may be something you don't want if you are running a massive bruteforce attack.
+
+To do this all we need to find the is host/port Burp is listening on. This can be retrieved from Burp > Proxy > Options > Proxy Listeners. This address can immediately be used for most tooling. For example you can run curl as follows.
+
+```bash
+$ curl --proxy http://127.0.0.1:8080 -k -i https://whoami.quoccabank.com
+HTTP/1.0 200 Connection established
+
+HTTP/1.1 200 OK
+Content-Length: 66
+Content-Type: text/plain
+Date: Mon, 01 Jun 2020 10:14:22 GMT
+Server: whoami
+X-Ctfproxy-Trace-Context: 00000000-0000-0000-0000-0000000000
+Connection: close
+
+Hello @todo! You are authenticated as todo@quoccabank.com.
+```
+
+Note that we needed to use the `-k` flag to allow insecure certificates. If you really want to avoid having to specify this option, you can add Burp's certificate as a system trusted certificate, this is probably best done at your own risk in a dedicated environment (if there's an alternative I would love to know - @todo). In order to do this you first need to export Burp's certificate (Burp > Proxy > Options > Import/Export Certificate > Export.Certificate in DER Format). You can then convert this to a pem and add it to your system's ca-certificates. _This was tested on Ubuntu @ WSL2_
+
+```bash
+% openssl x509 -in exported_cert.der -inform DER -out portswigger.crt -outform PEM
+% mkdir /usr/local/share/ca-certificates/comp6443
+% mv portswigger.crt /usr/local/share/ca-certificates/comp6443
+% update-ca-certificates
+```
+
+If you want to do this more generally you could also install and configure a tool like proxychains (proxychains-ng).
+
+<h5 class="hide-from-toc">Optional: Setting up Burp</h5>
+
+Personally I (@todo) like to have automated tools and manual browsing to go through different Burp proxies. This allows you to filter your proxy history to only contain manual browsing. We can add a new proxy as follows:
+
+1. Go to Burp > Proxy > Options
+2. In the fieldset Proxy Listeners click Add
+3. Add a new port to listen on in the "Bind to port" field and select the address you would like the proxy to bind to (loopback only is usually fine, if you're running WSL[2] or using a VM you may have to set a specifc address)
+4. Use this address and port instead of the default Burp proxy for your automated tooling.
+5. You can then navigate to your HTTP history, click on the filter bar up the top, and filter based on proxy port.
+
+<h4 class="hide-from-toc">Extracting Certificates from the PKCS#12 archive</h4>
+
+If you are writing your own scripts or don't want to proxy your traffic through burp, you can also extract the certificate and key from within the PKCS#12 file. You will need openssl installed and your installation key on hand.
+
+```bash
+$ openssl pkcs12 -in 6443.p12 -nodes
+```
+
+This will ask you for your import password, and print the certificate and key to stdout. Copy the content of the certificate and key (beginning with `-----BEGIN XXX -----` (inclusive)) and save it as two separate files.
+
+Once you have these two files, you can use them in your scripts. For example, a simple nc style connection might look like
+
+```bash
+$ openssl s_client -quiet -ign_eof -cert ~/certs/6443.pem -key ~/certs/6443.key -connect whoami.quoccabank.com:443
+```
+
+Or you can use the certificates in python requests
+
+```python
+import requests
+
+print(requests.get(
+    'https://whoami.quoccabank.com',
+    cert=('/home/todo/certs/6443.pem', '/home/todo/certs/6443.key'
+).text)
+
+# Out: Hello todo! You are authenticated as todo@quoccabank.com
+```
