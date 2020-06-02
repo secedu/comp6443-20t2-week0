@@ -225,7 +225,7 @@ $ curl --proxy http://127.0.0.1:8080 -k -i https://whoami.quoccabank.com
 HTTP/1.0 200 Connection established
 
 HTTP/1.1 200 OK
-Content-Length: 66
+Content-Length: 58
 Content-Type: text/plain
 Date: Mon, 01 Jun 2020 10:14:22 GMT
 Server: whoami
@@ -266,7 +266,21 @@ $ openssl pkcs12 -in 6443.p12 -nodes
 
 This will ask you for your import password, and print the certificate and key to stdout. Copy the content of the certificate and key (beginning with `-----BEGIN XXX -----` (inclusive)) and save it as two separate files.
 
-Once you have these two files, you can use them in your scripts. For example, a simple nc style connection might look like
+Once you have these two files, you can use them in your scripts. For example, curl might look like this:
+
+```bash
+$ curl --cert /home/me/certs/6443.pem --key /home/me/certs/6443.key -i https://whoami.quoccabank.com
+HTTP/2 200
+content-type: text/plain
+date: Tue, 02 Jun 2020 01:54:51 GMT
+server: whoami
+x-ctfproxy-trace-content: 00000000-0000-0000-0000-000000000000
+content-length: 58
+
+Hello @todo! You are authenticated as todo@quoccabank.com.
+```
+
+A simple nc style connection might look like this:
 
 ```bash
 $ openssl s_client -quiet -ign_eof -cert ~/certs/6443.pem -key ~/certs/6443.key -connect whoami.quoccabank.com:443
@@ -284,3 +298,5 @@ print(requests.get(
 
 # Out: Hello todo! You are authenticated as todo@quoccabank.com
 ```
+
+**Note: These certificates identify you to the course, treat them like you would a username and password. Make sure not to share them, either intentionally, or by accidentally uploading them to a shared server or github repository. Ideally keep these in a secure directory separate from all your main work. If you do share or otherwise lose control over your certificates, please notify course staff (cs6443@cse.unsw.edu.au).**
