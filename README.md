@@ -90,7 +90,7 @@ Even though we are a bank, at its core, we are still a tech company. So we deepl
 
 Ever wondering what actually happens after you click that "enter" button after putting in an url in your browser? You are probably already familiar with this by doing COMP1531/3331/9331/etc., but don't worry if you don't know. Here's a brief intro: on a really high level, it sends an HTTP request and waits for a response from the server. Each part contains a header and a body. It looks like this:
 
-```http
+<pre class="prettyprint">
 GET / HTTP/1.1
 Host: intro-to-ctf.nsa.group
 User-Agent: curl/7.64.1
@@ -105,7 +105,7 @@ server: Google Frontend
 content-length: 195
 
 Hello World
-```
+</pre>
 
 You can see this from your browser's developer tool we just talked about. In the next section, you'll install Burp Suite, a nice tool that sits as a proxy between your browser and the server so that you can see the actual traffic payload at a lower level of the network stack. You can even modify the request/response before sending that to the server/the browser. It's super useful for almost all web app testing.
 
@@ -201,7 +201,7 @@ Note: Python is quite slow, and its default implementation CPython has some perf
 
 Running automating tooling against quoccabank maybe made complex by the fact that quoccabank requires mTLS for authentication. Here we outline two approaches that you can use to make mTLS work with your scripts. For example, try running curl against whoami.quoccabank.com.
 
-```bash
+<pre class="prettyprint">
 $ curl -i https://whoami.quoccabank.com
 content-type: text/plain
 date: Mon, 01 Jun 2020 09:21:18 GMT
@@ -210,7 +210,7 @@ x-ctf-trace-context: 00000000-0000-0000-0000-000000000000
 content-length: 65
 
 You have not logged in! Please visit https://login.quoccabank.com
-```
+</pre>
 
 As you can see we are not signed in.
 
@@ -220,7 +220,7 @@ If you have Burp setup properly, you can simply proxy your traffic through Burp'
 
 To do this all we need to find the is host/port Burp is listening on. This can be retrieved from Burp > Proxy > Options > Proxy Listeners. This address can immediately be used for most tooling. For example you can run curl as follows.
 
-```bash
+<pre class="prettyprint">
 $ curl --proxy http://127.0.0.1:8080 -k -i https://whoami.quoccabank.com
 HTTP/1.0 200 Connection established
 
@@ -233,16 +233,16 @@ X-Ctfproxy-Trace-Context: 00000000-0000-0000-0000-0000000000
 Connection: close
 
 Hello @todo! You are authenticated as todo@quoccabank.com.
-```
+</pre>
 
 Note that we needed to use the `-k` flag to allow insecure certificates. If you really want to avoid having to specify this option, you can add Burp's certificate as a system trusted certificate, this is probably best done at your own risk in a dedicated environment (if there's an alternative I would love to know - @todo). In order to do this you first need to export Burp's certificate (Burp > Proxy > Options > Import/Export Certificate > Export.Certificate in DER Format). You can then convert this to a pem and add it to your system's ca-certificates. _This was tested on Ubuntu @ WSL2_
 
-```bash
+<pre class="prettyprint">
 % openssl x509 -in exported_cert.der -inform DER -out portswigger.crt -outform PEM
 % mkdir /usr/local/share/ca-certificates/comp6443
 % mv portswigger.crt /usr/local/share/ca-certificates/comp6443
 % update-ca-certificates
-```
+</pre>
 
 If you want to do this more generally you could also install and configure a tool like proxychains (proxychains-ng).
 
@@ -260,15 +260,15 @@ Personally I (@todo) like to have automated tools and manual browsing to go thro
 
 If you are writing your own scripts or don't want to proxy your traffic through burp, you can also extract the certificate and key from within the PKCS#12 file. You will need openssl installed and your installation key on hand.
 
-```bash
+<pre class="prettyprint">
 $ openssl pkcs12 -in 6443.p12 -nodes
-```
+</pre>
 
 This will ask you for your import password, and print the certificate and key to stdout. Copy the content of the certificate and key (beginning with `-----BEGIN XXX -----` (inclusive)) and save it as two separate files.
 
 Once you have these two files, you can use them in your scripts. For example, curl might look like this:
 
-```bash
+<pre class="prettyprint">
 $ curl --cert /home/me/certs/6443.pem --key /home/me/certs/6443.key -i https://whoami.quoccabank.com
 HTTP/2 200
 content-type: text/plain
@@ -278,17 +278,17 @@ x-ctfproxy-trace-content: 00000000-0000-0000-0000-000000000000
 content-length: 58
 
 Hello @todo! You are authenticated as todo@quoccabank.com.
-```
+</pre>
 
 A simple nc style connection might look like this:
 
-```bash
+<pre class="prettyprint">
 $ openssl s_client -quiet -ign_eof -cert ~/certs/6443.pem -key ~/certs/6443.key -connect whoami.quoccabank.com:443
-```
+</pre>
 
 Or you can use the certificates in python requests
 
-```python
+<pre class="prettyprint">
 import requests
 
 print(requests.get(
@@ -297,7 +297,7 @@ print(requests.get(
 ).text)
 
 # Out: Hello todo! You are authenticated as todo@quoccabank.com
-```
+</pre>
 
 Note: These certificates identify you to the course, treat them like you would a username and password. Make sure not to share them, either intentionally, or by accidentally uploading them to a shared server or github repository. Ideally keep these in a secure directory separate from all your main work. If you do share or otherwise lose control over your certificates, please notify course staff (cs6443@cse.unsw.edu.au).
 
