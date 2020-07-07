@@ -33,6 +33,8 @@ Follow the instructions on [https://login.quoccabank.com/](https://login.quoccab
 
 Note: for installing certificates, due to the change of location for that setting on different browser versions (online guides might not refer to the location in the latest version), it might be easier to just search for "cert" in Chrome/Firefox settings (chrome://settings or about:preferences in Firefox) and import it there. After installing, if your browser doesn't prompt you to pick a certificate when visiting whoami.quoccabank.com, try restarting your browser process (the entire browser OS process, not just a window or a tab)
 
+Note: After the certificate is emailed to you, the login.quoccabank.com page will state that *"After you installed your certificate, you can and should safely discard this temporary password :)"*. This is only true AFTER you have completed the rest of the activities in W0-Getting Started, as you will need this password to install your certificate to BurpSuite, and extracting cert files for use with Python scripts. If you lose your password before completing these activities, you will need to go back to login.quoccabank.com and request a new certificate/password pair.
+
 If you have any issues with mTLS authentication, please contact us via cs6443@cse.unsw.edu.au
 
 <h2 class="hide-from-toc">Wow what's that</h2>
