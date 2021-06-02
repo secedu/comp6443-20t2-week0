@@ -299,5 +299,15 @@ print(requests.get(
 # Out: Hello todo! You are authenticated as todo@quoccabank.com
 </pre>
 
+Or, for persistence you can do something like:
+
+<pre class="prettyprint">
+s = requests.Session()
+s.cert = ('/home/todo/6443.pem', '/home/todo/6443.key')
+print(s.get('https://whoami.quoccabank.com').text)
+
+# Out: Hello todo! You are authenticated as todo@quoccabank.com
+</pre>
+
 Note: These certificates identify you to the course, treat them like you would a username and password. Make sure not to share them, either intentionally, or by accidentally uploading them to a shared server or github repository. Ideally keep these in a secure directory separate from all your main work. If you do share or otherwise lose control over your certificates, please notify course staff (cs6443@cse.unsw.edu.au).
 
